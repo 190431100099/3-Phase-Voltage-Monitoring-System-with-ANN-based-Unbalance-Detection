@@ -1,0 +1,9 @@
+PySide6
+pyqtgraph
+numpy
+pandas
+scikit-learn
+tensorflow
+pyserial
+joblib
+openpyxl
