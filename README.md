@@ -4,7 +4,7 @@ Berikut adalah teks untuk file `README.md` yang siap Anda gunakan untuk reposito
 
 Proyek ini adalah aplikasi desktop berbasis Python yang dirancang untuk memantau tegangan dan arus 3 fasa secara *real-time*. Sistem ini menggunakan Arduino untuk pengambilan data sensor dan Komputer untuk pemrosesan data menggunakan Jaringan Saraf Tiruan (Artificial Neural Network/ANN) untuk mendeteksi kondisi "Balance" atau "Unbalance".
 
-## ✨ Fitur Utama
+## Fitur Utama
 
 - **Monitoring Real-time:** Membaca data tegangan (R, S, T) dan Arus (R, S, T) secara *live* melalui komunikasi serial.
 - **Visualisasi Grafik:** Menampilkan plot dinamis untuk setiap fasa serta grafik gabungan menggunakan `pyqtgraph`.
@@ -14,7 +14,7 @@ Proyek ini adalah aplikasi desktop berbasis Python yang dirancang untuk memantau
 - **Ekspor Data:** Fitur menyimpan riwayat data monitoring ke dalam file Excel (.xlsx).
 - **Feedback Hardware:** Mengirimkan status prediksi kembali ke Arduino (untuk indikator hardware).
 
-## 🛠️ Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 - **Bahasa Pemrograman:** Python 3.x
 - **GUI Framework:** PySide6 (Qt for Python)
@@ -23,7 +23,7 @@ Proyek ini adalah aplikasi desktop berbasis Python yang dirancang untuk memantau
 - **Manipulasi Data:** Pandas, NumPy
 - **Komunikasi Serial:** PySerial
 
-## 📁 Struktur File
+## Struktur File
 
 - `main.py`: Skrip utama aplikasi GUI dan logika serial.
 - `ui_main.py`: File definisi antarmuka pengguna (hasil konversi Qt Designer).
@@ -32,30 +32,7 @@ Proyek ini adalah aplikasi desktop berbasis Python yang dirancang untuk memantau
 - `model_ann.h5`: File model ANN yang telah dilatih (dihasilkan dari `olah_data_training.py`).
 - `scaler.pkl`: File scaler untuk normalisasi data input (dihasilkan dari `olah_data_training.py`).
 
-## ⚙️ Instalasi
-
-1. **Clone Repositori**
-   ```bash
-   git clone https://github.com/username/nama-repo.git
-   cd nama-repo
-   ```
-
-2. **Buat Virtual Environment (Opsional namun Disarankan)**
-   ```bash
-   python -m venv venv
-   # Windows
-   venv\Scripts\activate
-   # Linux/Mac
-   source venv/bin/activate
-   ```
-
-3. **Install Dependencies**
-   Pastikan Anda memiliki library yang dibutuhkan. Buat file `requirements.txt` atau install manual:
-   ```bash
-   pip install PySide6 pyqtgraph numpy pandas scikit-learn tensorflow pyserial joblib openpyxl
-   ```
-
-## 🚀 Cara Penggunaan
+## Cara Penggunaan
 
 ### 1. Persiapan Model (Training)
 Sebelum menjalankan aplikasi utama, Anda perlu melatih model AI.
@@ -92,10 +69,10 @@ Model dilatih untuk mengenali ketidakseimbangan dengan kriteria:
 - **Status UNBALANCE (Label 1):** Jika deviasi tegangan > 2% ATAU deviasi arus > 2%.
 - **Status BALANCE (Label 0):** Jika deviasi di bawah ambang batas tersebut.
 
-## 🤝 Kontribusi
+##  Kontribusi
 Kontribusi sangat terbuka. Jika Anda menemukan bug atau ingin menambahkan fitur, silakan buat *Pull Request* atau buka *Issue*.
 
-## 📝 Lisensi
+##  Lisensi
 Proyek ini berada di bawah lisensi MIT License.
 ```
 
@@ -113,3 +90,4 @@ joblib
 openpyxl
 ```
 Simpan file di atas dengan nama `requirements.txt` di folder yang sama, lalu tambahkan instruksi `pip install -r requirements.txt` di bagian instalasi README.
+
