@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         self.update_port_list()
 
     def setup_plots(self):
-        # --- PLOT R (Tegangan & Arus) ---
+        #PLOT R (Tegangan & Arus)
         self.plot_r = pg.PlotWidget(title="Fasa R (Tegangan & Arus)")
         self.plot_r.setBackground('k')
         self.plot_r.showGrid(x=True, y=True)
@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         # Sync geometry
         self.plot_r.plotItem.vb.sigResized.connect(lambda: self.view_arus_r.setGeometry(self.plot_r.plotItem.vb.sceneBoundingRect()))
 
-        # --- PLOT S (Tegangan & Arus) ---
+        #PLOT S (Tegangan & Arus)
         self.plot_s = pg.PlotWidget(title="Fasa S (Tegangan & Arus)")
         self.plot_s.setBackground('k')
         self.plot_s.showGrid(x=True, y=True)
@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
         self.plot_s.getPlotItem().setLabel('right', 'Arus', units='A')
         self.plot_s.plotItem.vb.sigResized.connect(lambda: self.view_arus_s.setGeometry(self.plot_s.plotItem.vb.sceneBoundingRect()))
 
-        # --- PLOT T (Tegangan & Arus) ---
+        #PLOT T (Tegangan & Arus)
         self.plot_t = pg.PlotWidget(title="Fasa T (Tegangan & Arus)")
         self.plot_t.setBackground('k')
         self.plot_t.showGrid(x=True, y=True)
@@ -142,7 +142,7 @@ class MainWindow(QMainWindow):
         self.plot_t.getPlotItem().setLabel('right', 'Arus', units='A')
         self.plot_t.plotItem.vb.sigResized.connect(lambda: self.view_arus_t.setGeometry(self.plot_t.plotItem.vb.sceneBoundingRect()))
 
-        # --- PLOT RST (Gabungan Tegangan Saja) ---
+        #PLOT RST (Gabungan Tegangan Saja)
         self.plot_rst = pg.PlotWidget(title="Gabungan Tegangan R, S, T")
         self.plot_rst.setBackground('k')
         self.plot_rst.showGrid(x=True, y=True)
@@ -388,3 +388,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
