@@ -25,7 +25,6 @@ const float CAL_I_S = 0.9204;
 // Fase T
 const float CAL_V_T = 0.9962;
 const float CAL_I_T = 0.9725;
-// 
 
 void setup() {
   Serial.begin(9600);
@@ -37,13 +36,13 @@ void setup() {
   pinMode(relayPin, OUTPUT);
   pinMode(BuzzerPin, OUTPUT);
   digitalWrite(relayPin, HIGH); // Relay OFF awal
-  digitalWrite(BuzzerPin, HIGH);
+  digitalWrite(BuzzerPin, HIGH); // Buzzer OFF awal
 
   delay(1000);
 }
 
 void bacaPZEM() {
-  //Nilai Mentah (Raw)
+  // Nilai Mentah (Raw)
   float raw_vR = pzemR.voltage();
   float raw_vS = pzemS.voltage();
   float raw_vT = pzemT.voltage();
@@ -52,7 +51,7 @@ void bacaPZEM() {
   float raw_iS = pzemS.current();
   float raw_iT = pzemT.current();
 
-  //Kalibrasi (Raw * Faktor)
+  // Kalibrasi (Raw * Faktor)
   if (!isnan(raw_vR)) teganganR = raw_vR * CAL_V_R;
   else teganganR = 0;
   if (!isnan(raw_vS)) teganganS = raw_vS * CAL_V_S;
@@ -78,12 +77,20 @@ void loop() {
   Serial.print(arusS, 3); Serial.print(",");
   Serial.println(arusT, 3);
 
-  //terima perintah dari main.py
+  // Terima perintah dari main.py
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil('\n');
     command.trim();
 
-    if (command == "UNBALANCE") {
+    if (command == "STANDBY") {
+      digitalWrite(relayPin, HIGH); 
+      digitalWrite(BuzzerPin, HIGH);
+    } 
+    else if (command == "RUN") {
+      digitalWrite(relayPin, HIGH);
+      digitalWrite(BuzzerPin, HIGH);
+    }
+    else if (command == "UNBALANCE") {
       digitalWrite(relayPin, LOW); // Relay ON
       digitalWrite(BuzzerPin, LOW); // Buzzer ON
     } 
