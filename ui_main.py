@@ -155,6 +155,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(-1, 7, -1, -1)
+        
+        # Tombol Start
         self.Button_Start = QPushButton(self.centralwidget)
         self.Button_Start.setObjectName(u"Button_Start")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -164,14 +166,20 @@ class Ui_MainWindow(object):
         self.Button_Start.setSizePolicy(sizePolicy)
         self.Button_Start.setMinimumSize(QSize(0, 0))
         self.Button_Start.setBaseSize(QSize(0, 0))
-
         self.horizontalLayout_6.addWidget(self.Button_Start)
 
+        # Tombol Standby (BARU)
+        self.Button_Standby = QPushButton(self.centralwidget)
+        self.Button_Standby.setObjectName(u"Button_Standby")
+        self.Button_Standby.setStyleSheet(u"background-color: orange; font-weight: bold;")
+        self.horizontalLayout_6.addWidget(self.Button_Standby)
+
+        # Tombol Export
         self.Button_Export = QPushButton(self.centralwidget)
         self.Button_Export.setObjectName(u"Button_Export")
-
         self.horizontalLayout_6.addWidget(self.Button_Export)
 
+        # ComboBox Port
         self.Box_port = QComboBox(self.centralwidget)
         self.Box_port.setObjectName(u"Box_port")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
@@ -258,7 +266,7 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"Status Arus", None))
         self.Button_Start.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.Button_Export.setText(QCoreApplication.translate("MainWindow", u"Export", None))
+        self.Button_Standby.setText(QCoreApplication.translate("MainWindow", u"STANDBY", None)) # Teks Default
         self.Box_port.setCurrentText("")
         self.Box_port.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Port...", None))
     # retranslateUi
-
