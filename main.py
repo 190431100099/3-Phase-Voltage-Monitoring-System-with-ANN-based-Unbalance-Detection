@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-import pandas as pd  # Library untuk Excel
+import pandas as pd
 
 from PySide6.QtWidgets import (QApplication, QComboBox, QMainWindow, QVBoxLayout, QMessageBox, QFileDialog)
 from PySide6.QtCore import QThread, Signal
@@ -64,42 +64,86 @@ class MainWindow(QMainWindow):
         self.serial_thread = None
         self.serial_connected = False
         
-        # List untuk history data
+        self.is_standby = True 
         self.data_history = []
         
         self.ui.Button_Start.clicked.connect(self.toggle_connection)
         self.ui.Button_Export.clicked.connect(self.export_to_excel)
+        self.ui.Button_Standby.clicked.connect(self.toggle_standby)
+        self.set_standby_ui()
+
         self.ui.Box_port.showPopup = self.update_port_list_then_show
 
         self.setup_plots()
         self.update_port_list()
 
     def setup_plots(self):
-        self.plot_r = pg.PlotWidget(title="Tegangan R (Realtime)")
+        # --- PLOT R (Tegangan & Arus) ---
+        self.plot_r = pg.PlotWidget(title="Fasa R (Tegangan & Arus)")
         self.plot_r.setBackground('k')
         self.plot_r.showGrid(x=True, y=True)
+        # Sumbu Kiri (Tegangan)
         self.plot_r.getPlotItem().getAxis('left').setPen('w')
-        self.plot_r.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_r.getPlotItem().getAxis('left').setTextPen('w')
+        self.plot_r.getPlotItem().setLabel('left', 'Tegangan', units='V')
+        # Sumbu Bawah
+        self.plot_r.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_r.getPlotItem().getAxis('bottom').setTextPen('w')
+        
+        # Sumbu Kanan (Arus) - Menggunakan ViewBox terpisah
+        self.plot_r.showAxis('right')
+        self.view_arus_r = pg.ViewBox()
+        self.plot_r.scene().addItem(self.view_arus_r)
+        self.plot_r.getAxis('right').linkToView(self.view_arus_r)
+        self.view_arus_r.setXLink(self.plot_r.plotItem.vb)
+        self.plot_r.getAxis('right').setPen('c')
+        self.plot_r.getAxis('right').setTextPen('c')
+        self.plot_r.getPlotItem().setLabel('right', 'Arus', units='A')
+        # Sync geometry
+        self.plot_r.plotItem.vb.sigResized.connect(lambda: self.view_arus_r.setGeometry(self.plot_r.plotItem.vb.sceneBoundingRect()))
 
-        self.plot_s = pg.PlotWidget(title="Tegangan S (Realtime)")
+        # --- PLOT S (Tegangan & Arus) ---
+        self.plot_s = pg.PlotWidget(title="Fasa S (Tegangan & Arus)")
         self.plot_s.setBackground('k')
         self.plot_s.showGrid(x=True, y=True)
         self.plot_s.getPlotItem().getAxis('left').setPen('w')
-        self.plot_s.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_s.getPlotItem().getAxis('left').setTextPen('w')
+        self.plot_s.getPlotItem().setLabel('left', 'Tegangan', units='V')
+        self.plot_s.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_s.getPlotItem().getAxis('bottom').setTextPen('w')
 
-        self.plot_t = pg.PlotWidget(title="Tegangan T (Realtime)")
+        self.plot_s.showAxis('right')
+        self.view_arus_s = pg.ViewBox()
+        self.plot_s.scene().addItem(self.view_arus_s)
+        self.plot_s.getAxis('right').linkToView(self.view_arus_s)
+        self.view_arus_s.setXLink(self.plot_s.plotItem.vb)
+        self.plot_s.getAxis('right').setPen('c')
+        self.plot_s.getAxis('right').setTextPen('c')
+        self.plot_s.getPlotItem().setLabel('right', 'Arus', units='A')
+        self.plot_s.plotItem.vb.sigResized.connect(lambda: self.view_arus_s.setGeometry(self.plot_s.plotItem.vb.sceneBoundingRect()))
+
+        # --- PLOT T (Tegangan & Arus) ---
+        self.plot_t = pg.PlotWidget(title="Fasa T (Tegangan & Arus)")
         self.plot_t.setBackground('k')
         self.plot_t.showGrid(x=True, y=True)
         self.plot_t.getPlotItem().getAxis('left').setPen('w')
-        self.plot_t.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_t.getPlotItem().getAxis('left').setTextPen('w')
+        self.plot_t.getPlotItem().setLabel('left', 'Tegangan', units='V')
+        self.plot_t.getPlotItem().getAxis('bottom').setPen('w')
         self.plot_t.getPlotItem().getAxis('bottom').setTextPen('w')
 
-        self.plot_rst = pg.PlotWidget(title="Gabungan R, S, T")
+        self.plot_t.showAxis('right')
+        self.view_arus_t = pg.ViewBox()
+        self.plot_t.scene().addItem(self.view_arus_t)
+        self.plot_t.getAxis('right').linkToView(self.view_arus_t)
+        self.view_arus_t.setXLink(self.plot_t.plotItem.vb)
+        self.plot_t.getAxis('right').setPen('c')
+        self.plot_t.getAxis('right').setTextPen('c')
+        self.plot_t.getPlotItem().setLabel('right', 'Arus', units='A')
+        self.plot_t.plotItem.vb.sigResized.connect(lambda: self.view_arus_t.setGeometry(self.plot_t.plotItem.vb.sceneBoundingRect()))
+
+        # --- PLOT RST (Gabungan Tegangan Saja) ---
+        self.plot_rst = pg.PlotWidget(title="Gabungan Tegangan R, S, T")
         self.plot_rst.setBackground('k')
         self.plot_rst.showGrid(x=True, y=True)
         self.plot_rst.getPlotItem().getAxis('left').setPen('w')
@@ -107,12 +151,16 @@ class MainWindow(QMainWindow):
         self.plot_rst.getPlotItem().getAxis('left').setTextPen('w')
         self.plot_rst.getPlotItem().getAxis('bottom').setTextPen('w')
 
+        # Set Range
         for plot in [self.plot_r, self.plot_s, self.plot_t, self.plot_rst]:
-            plot.setBackground('k')
-            plot.showGrid(x=True, y=True)
-            plot.setYRange(220, 250) # Sesuaikan range Y dengan range data baru
-            plot.setXRange(0, 50)
+            plot.setYRange(220, 250) # Range Tegangan
+        
+        # Range untuk Arus (Sumur Kanan) - Set manual agar garis terlihat jelas
+        self.view_arus_r.setYRange(0, 5) 
+        self.view_arus_s.setYRange(0, 5)
+        self.view_arus_t.setYRange(0, 5)
 
+        # Layouts
         layout_r = QVBoxLayout(self.ui.widget_R)
         layout_r.setContentsMargins(0, 0, 0, 0)
         layout_r.addWidget(self.plot_r)
@@ -129,21 +177,56 @@ class MainWindow(QMainWindow):
         layout_rst.setContentsMargins(0, 0, 0, 0)
         layout_rst.addWidget(self.plot_rst)
 
+        # Inisialisasi Kurva Tegangan
         self.data_r, self.data_s, self.data_t = [], [], []
-        self.max_points = 50
-
         self.curve_r = self.plot_r.plot(pen=pg.mkPen('r', width=2))
         self.curve_s = self.plot_s.plot(pen=pg.mkPen('g', width=2))
         self.curve_t = self.plot_t.plot(pen=pg.mkPen('b', width=2))
 
+        # Inisialisasi Kurva Arus (Linked ke ViewBox Kanan)
+        self.data_arus_r, self.data_arus_s, self.data_arus_t = [], [], []
+        self.curve_arus_r = pg.PlotCurveItem(pen=pg.mkPen('c', width=2)) # Cyan
+        self.view_arus_r.addItem(self.curve_arus_r)
+        
+        self.curve_arus_s = pg.PlotCurveItem(pen=pg.mkPen('c', width=2))
+        self.view_arus_s.addItem(self.curve_arus_s)
+        
+        self.curve_arus_t = pg.PlotCurveItem(pen=pg.mkPen('c', width=2))
+        self.view_arus_t.addItem(self.curve_arus_t)
+
+        # Kurva Gabungan RST
         self.curve_rst_r = self.plot_rst.plot(pen=pg.mkPen('r', width=2))
         self.curve_rst_s = self.plot_rst.plot(pen=pg.mkPen('g', width=2))
         self.curve_rst_t = self.plot_rst.plot(pen=pg.mkPen('b', width=2))
+
+        self.max_points = 50
 
         for lineedit in [self.ui.line_R, self.ui.line_S, self.ui.line_T,
                          self.ui.line_arus_R, self.ui.line_arus_S, self.ui.Line_arus_T,
                          self.ui.line_Status_T, self.ui.line_status_A]:
             lineedit.setReadOnly(True)
+
+    def set_standby_ui(self):
+        if self.is_standby:
+            self.ui.Button_Standby.setText("SYSTEM RUN")
+            self.ui.Button_Standby.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold;")
+        else:
+            self.ui.Button_Standby.setText("STANDBY")
+            self.ui.Button_Standby.setStyleSheet("background-color: #FF9800; color: black; font-weight: bold;")
+
+    def toggle_standby(self):
+        self.is_standby = not self.is_standby
+        self.set_standby_ui()
+        status_mode = "STANDBY" if self.is_standby else "RUN"
+        
+        if self.serial_thread and self.serial_thread.serial_port and self.serial_thread.serial_port.is_open:
+            try:
+                message = f"{status_mode}\n".encode('utf-8')
+                self.serial_thread.serial_port.write(message)
+            except Exception as e:
+                print(f"Error saat mengirim mode ke Arduino: {e}")
+
+        QMessageBox.information(self, "Mode Diubah", f"Sistem dalam mode: {status_mode}")
 
     def update_port_list_then_show(self):
         self.update_port_list()
@@ -216,15 +299,17 @@ class MainWindow(QMainWindow):
             confidence = prediction if predicted_class == 1 else 1 - prediction
 
             kondisi = "UNBALANCE" if predicted_class == 1 else "BALANCE"
+            
             self.ui.line_Status_T.setText(f"{kondisi}")
             self.ui.line_status_A.setText(f"{confidence*100:.2f}")
             
-            if self.serial_thread and self.serial_thread.serial_port and self.serial_thread.serial_port.is_open:
-                try:
-                    message = f"{kondisi}\n".encode('utf-8')
-                    self.serial_thread.serial_port.write(message)
-                except Exception as e:
-                    print(f"Error saat mengirim data ke Arduino: {e}")
+            if not self.is_standby:
+                if self.serial_thread and self.serial_thread.serial_port and self.serial_thread.serial_port.is_open:
+                    try:
+                        message = f"{kondisi}\n".encode('utf-8')
+                        self.serial_thread.serial_port.write(message)
+                    except Exception as e:
+                        print(f"Error saat mengirim data ke Arduino: {e}")
             
         except Exception as e:
             print(f"Error saat evaluasi ANN: {e}")
@@ -235,22 +320,43 @@ class MainWindow(QMainWindow):
             r = float(parts[0])
             s = float(parts[1])
             t = float(parts[2])
+            i_r = float(parts[3])
+            i_s = float(parts[4])
+            i_t = float(parts[5])
 
+            # Update Data Tegangan
             self.data_r.append(r)
             self.data_s.append(s)
             self.data_t.append(t)
 
+            # Update Data Arus
+            self.data_arus_r.append(i_r)
+            self.data_arus_s.append(i_s)
+            self.data_arus_t.append(i_t)
+
+            # Batasi jumlah titik (Sliding Window)
             if len(self.data_r) > self.max_points:
                 self.data_r = self.data_r[-self.max_points:]
                 self.data_s = self.data_s[-self.max_points:]
                 self.data_t = self.data_t[-self.max_points:]
+                
+                self.data_arus_r = self.data_arus_r[-self.max_points:]
+                self.data_arus_s = self.data_arus_s[-self.max_points:]
+                self.data_arus_t = self.data_arus_t[-self.max_points:]
 
             x_data = list(range(len(self.data_r)))
 
+            # Update Plot Tegangan
             self.curve_r.setData(x_data, self.data_r)
             self.curve_s.setData(x_data, self.data_s)
             self.curve_t.setData(x_data, self.data_t)
 
+            # Update Plot Arus
+            self.curve_arus_r.setData(x_data, self.data_arus_r)
+            self.curve_arus_s.setData(x_data, self.data_arus_s)
+            self.curve_arus_t.setData(x_data, self.data_arus_t)
+
+            # Update Plot Gabungan RST (Hanya Tegangan)
             self.curve_rst_r.setData(x_data, self.data_r)
             self.curve_rst_s.setData(x_data, self.data_s)
             self.curve_rst_t.setData(x_data, self.data_t)
